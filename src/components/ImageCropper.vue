@@ -1,8 +1,15 @@
 <template>
   <div class="image-cropper">
-    <Select-Rec></Select-Rec>
-    <div class="slide-wrap">
-      <Slide :cur.sync="cur"></Slide>
+    <div class="ori-canvas-wrap">
+      <canvas class="ori-canvas"></canvas>
+      <Select-Rec></Select-Rec>
+      <input type="file" accept="image/*" title="请选择封面图"/>
+      <div class="slide-wrap">
+        <Slide min="-100" max="100" :cur.sync="cur"></Slide>
+      </div>
+    </div>
+    <div class="rst-canvas-wrap">
+      <canvas class="rst-canvas"></canvas>
     </div>
   </div>
 </template>
@@ -18,7 +25,7 @@
     },
     data() {
       return {
-        cur: 40
+        cur: 0
       }
     }
   }

@@ -7,6 +7,8 @@
 </template>
 
 <script>
+  import { getLeft, throttle } from '../util.js'
+
   export default {
     props: {
       min: {
@@ -30,7 +32,7 @@
     },
     computed: {
       percent() {
-        return this.cur >= this.max ? 100 : (this.cur / this.max) * 100;
+        return this.cur >= this.max ? 100 : ((+this.cur - +this.min) / (+this.max - +this.min)) * 100;
       }
     },
     watch: {
@@ -42,7 +44,7 @@
     },
     ready() {
       this.updateToggle();
-      this.moveHandler = this.throttle(this.dragUpdate, 150, this);
+      this.moveHandler = throttle(this.dragUpdate, 150, this);
 
       window.addEventListener('mousemove', this.moveHandler);
       window.addEventListener('mouseup', this.deactiveDrag);
@@ -69,55 +71,30 @@
           return;
         }
         const w = this.$el.offsetWidth;
-        const d = e.pageX - this.getLeft(this.$el);
+        const d = e.pageX - getLeft(this.$el);
 
-        this.updateCur(d / w * this.max);
+        this.updateCur(w, d);
       },
       clickUpdate(e) {
         const w = this.$el.offsetWidth;
-        const d = e.pageX - this.getLeft(this.$el);
+        const d = e.pageX - getLeft(this.$el);
 
-        this.updateCur(d / w * this.max);
+        this.updateCur(w, d);
+      },
+      updateCur(w, d) {
+        if (d <= 0) {
+          this.cur = this.min;
+        } else if (d >= w) {
+          this.cur = this.max;
+        } else {
+          this.cur = d * (+this.max - +this.min) / w + +this.min;
+        }
       },
       deactiveDrag() {
         this.dragActive = false;
       },
-      updateCur(c) {
-        if (c <= 0) {
-          this.cur = 0;
-        } else if (c >= this.max) {
-          this.cur = this.max;
-        } else {
-          this.cur = c;
-        }
-      },
       updateToggle() {
         this.$el.querySelectorAll('.process')[0].setAttribute('style', `left: ${this.percent}%`)
-      },
-      getLeft(el) {
-        let left = el.offsetLeft;
-        let parent = el.offsetParent;
-
-        while (parent) {
-          left += parent.offsetLeft;
-          parent = parent.offsetParent;
-        }
-
-        return left;
-      },
-      throttle(fn, wait, ctx) {
-        let t = null;
-
-        return function (...args) {
-          if (t) {
-            clearTimeout(t);
-            t = null;
-          }
-
-          setTimeout(function () {
-              fn.call(ctx, ...args);
-            }, wait);
-          }
       }
     }
   }
