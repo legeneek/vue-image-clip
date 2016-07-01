@@ -1,21 +1,19 @@
 <template>
   <div class="image-cropper">
-    <div class="ori-canvas-wrap">
+    <div class="img-container">
       <canvas class="ori-canvas"></canvas>
       <Select-Rec></Select-Rec>
-      <input type="file" accept="image/*" title="请选择封面图"/>
-      <div class="slide-wrap">
-        <Slide min="-100" max="100" :cur.sync="cur"></Slide>
-      </div>
     </div>
-    <div class="rst-canvas-wrap">
-      <canvas class="rst-canvas"></canvas>
+    <div class="img-preview">
+    </div>
+    <div class="slider-wrap">
+      <Slide></Slide>
     </div>
   </div>
 </template>
 
 <script>
-  import SelectRec from './SelectRec.vue';
+  import SelectRec from './SelectBox.vue';
   import Slide from './Slide.vue';
 
   export default {
@@ -32,8 +30,17 @@
 </script>
 
 <style scoped>
-  .slide-wrap {
+  .slider-wrap {
     width: 300px;
-    margin: 0 auto;
+  }
+  .img-container {
+    position: relative;
+    width: 600px;
+    height: 300px;
+    background-color: #9da0a4;
+  }
+  .ori-canvas {
+    width: 100%;
+    height: 100%;
   }
 </style>

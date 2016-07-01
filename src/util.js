@@ -9,6 +9,17 @@ export function getLeft(el) {
   return left;
 }
 
+export function getTop(el) {
+  let top = el.offsetTop;
+  let parent = el.offsetParent;
+
+  while (parent) {
+    top += parent.offsetTop;
+    parent = parent.offsetParent;
+  }
+  return top;
+}
+
 export function throttle(fn, wait, ctx) {
   let t = null;
 
