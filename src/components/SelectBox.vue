@@ -16,7 +16,8 @@
         action: '',
         actionPoint: { x: 0, y: 0 },
         radio: 16 / 9,
-        referPoint: { x: 0, y: 0 }
+        referPoint: { x: 0, y: 0 },
+        $rec: null
       }
     },
     watch: {
@@ -28,6 +29,7 @@
       }
     },
     ready() {
+      this.$rec = this.$el.querySelectorAll('.crop-box')[0];
       window.addEventListener('mouseup', this.disableDrag);
       window.addEventListener('mousemove', this.updateRec)
     },
@@ -58,7 +60,10 @@
         this.referPoint = { x: this.rec.l, y: this.rec.t };
       },
       disableDrag() {
-        this.action = '';
+        if (this.action) {
+          this.action = '';
+          this.$dispatch('selectChange');
+        }
         this.referPoint = { x: this.rec.l, y: this.rec.t };
         console.log(JSON.stringify(this.rec));
       },
@@ -125,8 +130,11 @@
         }
       },
       drawRec() {
-        const $rec = this.$el.querySelectorAll('.crop-box')[0];
-        $rec.setAttribute('style',
+        if (!this.$rec) {
+          this.$rec = this.$el.querySelectorAll('.crop-box')[0];
+        }
+
+        this.$rec.setAttribute('style',
             `width:${this.rec.w}px;height:${this.rec.h}px;left:${this.rec.l}px;top:${this.rec.t}px`);
       }
     }
