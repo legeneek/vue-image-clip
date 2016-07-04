@@ -81,6 +81,10 @@
         let t = 0;
         let l = 0;
 
+        if (dx === 0 || dy === 0) {
+          return;
+        }
+
         if (this.action === 'move') {
           t = dy + this.referPoint.y;
           l = dx + this.referPoint.x;
@@ -102,7 +106,7 @@
         }
 
         if (this.action === 'cross') {
-          if (dx >= 0 && dy >= 0) {
+          if (dx > 0 && dy > 0) {
             w = dx + this.rec.l >= elWidth ? elWidth - this.rec.l : dx;
             h = w / this.radio;
 
@@ -112,18 +116,41 @@
             }
             this.rec.w = w;
             this.rec.h = h;
-          } else if (dx >= 0 && dy < 0) {
-            w = dx + this.rec.l >= elWidth ? elWidth - this.rec.l : dx;
+          } else if (dx > 0 && dy < 0) {
+            w = dx + this.referPoint.x >= elWidth ? elWidth - this.referPoint.x : dx;
             h = w / this.radio;
 
-            if (h + this.rec.t > elHeight) {
-              h = elHeight - this.rec.t;
+            if (h >= this.referPoint.y) {
+              h = this.referPoint.y;
               w = h * this.radio;
             }
 
-            t = this.referPoint.y - h;
-            t = t <= 0 ? 0 : t;
-            this.rec.t = t;
+            this.rec.t = this.referPoint.y - h;
+            this.rec.w = w;
+            this.rec.h = h;
+          } else if (dx < 0 && dy < 0) {
+            w = dx + this.referPoint.x <= 0 ? this.referPoint.x : -dx;
+            h = w / this.radio;
+
+            if (h >= this.referPoint.y) {
+              h = this.referPoint.y;
+              w = h * this.radio;
+            }
+
+            this.rec.t = this.referPoint.y - h;
+            this.rec.l = this.referPoint.x - w;
+            this.rec.w = w;
+            this.rec.h = h;
+          } else if (dx < 0 && dy > 0) {
+            w = dx + this.referPoint.x <= 0 ? this.referPoint.x : -dx;
+            h = w / this.radio;
+
+            if (h + this.referPoint.y >= elHeight) {
+              h = elHeight - this.referPoint.y;
+              w = h * this.radio;
+            }
+
+            this.rec.l = this.referPoint.x - w;
             this.rec.w = w;
             this.rec.h = h;
           }
@@ -155,7 +182,7 @@
     left: 0;
     width: 0;
     height: 0;
-    background: rgba(255,255,255,.1);
+    background: rgba(255,255,255,.2);
     cursor: pointer;
   }
 </style>
