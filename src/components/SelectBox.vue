@@ -65,10 +65,8 @@
       disableDrag() {
         if (this.action) {
           this.action = '';
-          this.$dispatch('selectChange');
         }
         this.referPoint = { x: this.rec.l, y: this.rec.t };
-        console.log(JSON.stringify(this.rec));
       },
       clearRec() {
         this.action = '';
@@ -162,6 +160,7 @@
             this.rec.h = h;
           }
         }
+        this.$dispatch('selectChange');
       },
       drawRec() {
         if (!this.$rec) {
@@ -190,7 +189,8 @@
     left: 0;
     width: 0;
     height: 0;
-    background: rgba(255,255,255,.2);
+    background-color: rgba(255,255,255,.1);
     cursor: move;
+    border: 1px solid #39f;
   }
 </style>

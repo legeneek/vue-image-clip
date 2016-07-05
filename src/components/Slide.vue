@@ -7,7 +7,7 @@
 </template>
 
 <script>
-  import { getLeft, throttle } from '../util.js'
+  import { getLeft } from '../util.js'
 
   export default {
     props: {
@@ -45,7 +45,6 @@
     },
     ready() {
       this.updateToggle();
-      this.moveHandler = throttle(this.dragUpdate, 100, this);
 
       window.addEventListener('mousemove', this.dragUpdate);
       window.addEventListener('mouseup', this.deactiveDrag);

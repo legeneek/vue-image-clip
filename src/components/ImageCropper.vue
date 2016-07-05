@@ -14,7 +14,7 @@
       <input type="file" id="file_input" accept="image/*" title="请选择封面图"/>
       <button @click="clearSelect">clear</button>
       <div class="slider-wrap">
-        <Slide min="-100" max="100" cur="0" step="5"></Slide>
+        <Slide min="-100" max="100" :cur.sync="sliderValue" step="5"></Slide>
       </div>
     </div>
   </div>
@@ -40,6 +40,7 @@
           left: 0,
           top: 0
         },
+        sliderValue: 0,
         prePoint: {
           x: 0,
           y: 0
@@ -47,18 +48,20 @@
         initPoint: {
           x: 0,
           y: 0
-        }
+        },
+        clipData: null,
+        loaded: false
       }
     },
     events: {
       selectChange() {
         const rec = this.$refs.box.rec;
-        if (rec.w > 0 && rec.h > 0) {
+        if (rec.w > 0 && rec.h > 0 && this.loaded) {
           this.clip();
         }
       },
       sliderChange(v) {
-        this.scaleImg(+v);
+        this.resize((+v + 100) / 100);
       }
     },
     watch: {
@@ -79,6 +82,7 @@
       this.$input.addEventListener('change', function () {
         const fd = new FileReader;
         fd.onloadend = function () {
+          me.loaded = true;
           me.$imgs[0].src = fd.result;
           me.$imgs[1].src = fd.result;
         };
@@ -96,10 +100,21 @@
     },
     methods: {
       clearSelect() {
+        if (!this.loaded) {
+          return;
+        }
         const box = this.$refs.box;
+        const $img = this.$imgs[0];
+        const cw = this.$imgContainer.offsetWidth;
+        const ch = this.$imgContainer.offsetHeight;
         if (box) {
           box.clearRec();
         }
+        this.imgOption = { scale: 1, left: 0, top: 0 };
+        this.sliderValue = 0;
+        this.clipData = null;
+        $img.setAttribute('style',
+            `width:${cw}px;height:${ch}px;left:0px;top:0px;`);
       },
       prepareMove(e) {
         this.prePoint.x = e.pageX;
@@ -112,36 +127,42 @@
         if (this.action !== 'move') {
           return;
         }
+        this.move(e.pageX, e.pageY);
+      },
+      move(x, y) {
         const $img = this.$imgs[0];
-        const dx = e.pageX - this.prePoint.x;
-        const dy = e.pageY - this.prePoint.y;
+        const dx = x - this.prePoint.x;
+        const dy = y - this.prePoint.y;
         const l = (parseInt($img.style.left, 10) || 0) + dx;
         const t = (parseInt($img.style.top, 10) || 0) + dy;
         $img.style.left = `${l}px`;
         $img.style.top = `${t}px`;
-        this.prePoint.x = e.pageX;
-        this.prePoint.y = e.pageY;
-        this.imgOption.left = e.pageX - this.initPoint.x;
-        this.imgOption.top = e.pageY - this.initPoint.y;
+        this.prePoint.x = x;
+        this.prePoint.y = y;
+        this.imgOption.left = x - this.initPoint.x;
+        this.imgOption.top = y - this.initPoint.y;
       },
       disableMove() {
         this.action = '';
       },
-      scaleImg(v) {
-        const cur = (100 + v);
+      resize(v) {
         const $img = this.$imgs[0];
         const cw = this.$imgContainer.offsetWidth;
         const ch = this.$imgContainer.offsetHeight;
-        const w = cw * cur / 100;
-        const h = ch * cur / 100;
+        const w = cw * v;
+        const h = ch * v;
         const l = (cw - w) / 2 + this.imgOption.left;
         const t = (ch - h) / 2 + this.imgOption.top;
-        this.imgOption.scale = cur / 100;
+        this.imgOption.scale = v;
         $img.setAttribute('style',
             `width:${w}px;height:${h}px;left:${l}px;top:${t}px;`);
       },
       clip() {
         const rec = this.$refs.box.rec;
+        if (!rec.w || !rec.h || !this.loaded) {
+          return;
+        }
+
         const ctx = this.$clipCanvas.getContext('2d');
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d');
@@ -162,6 +183,7 @@
         bfx.putImageData(tempCtx.getImageData(rec.l, rec.t, rec.w, rec.h), 0, 0);
         const dImg = new Image();
         const url = bufferCanvas.toDataURL('image/png');
+        this.clipData = url;
         dImg.src = url;
         this.$imgs[1].src = url;
         dImg.onload = function () {
@@ -182,8 +204,8 @@
     position: relative;
     width: 600px;
     height: 300px;
-    background-color: #f7f7f7;
     overflow: hidden;
+    background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQAQMAAAAlPW0iAAAAA3NCSVQICAjb4U/gAAAABlBMVEXMzMz////TjRV2AAAACXBIWXMAAArrAAAK6wGCiw1aAAAAHHRFWHRTb2Z0d2FyZQBBZG9iZSBGaXJld29ya3MgQ1M26LyyjAAAABFJREFUCJlj+M/AgBVhF/0PAH6/D/HkDxOGAAAAAElFTkSuQmCC);
     float: left;
   }
   .img-container img {
