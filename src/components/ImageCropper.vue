@@ -1,7 +1,7 @@
 <template>
   <div class="image-cropper">
-    <div class="img-container">
-      <img width="600" height="300">
+    <div class="img-container" @mousedown="prepareMove">
+      <img>
       <Select-Box v-ref:box></Select-Box>
     </div>
     <div class="img-preview">
@@ -12,8 +12,9 @@
     </div>
     <div class="img-action">
       <input type="file" id="file_input" accept="image/*" title="请选择封面图"/>
+      <button @click="clearSelect">clear</button>
       <div class="slider-wrap">
-        <Slide></Slide>
+        <Slide min="-100" max="100" cur="0" step="5"></Slide>
       </div>
     </div>
   </div>
@@ -30,10 +31,23 @@
     },
     data() {
       return {
-        cur: 0,
         $clipCanvas: null,
         $imgs: null,
-        $input: null
+        $input: null,
+        $imgContainer: null,
+        imgOption: {
+          scale: 1,
+          left: 0,
+          top: 0
+        },
+        prePoint: {
+          x: 0,
+          y: 0
+        },
+        initPoint: {
+          x: 0,
+          y: 0
+        }
       }
     },
     events: {
@@ -42,6 +56,17 @@
         if (rec.w > 0 && rec.h > 0) {
           this.clip();
         }
+      },
+      sliderChange(v) {
+        this.scaleImg(+v);
+      }
+    },
+    watch: {
+      imgOption: {
+        handler() {
+          this.clip();
+        },
+        deep: true
       }
     },
     ready() {
@@ -49,10 +74,10 @@
       this.$input = this.$el.querySelectorAll('#file_input')[0];
       this.$imgs = this.$el.querySelectorAll('img');
       this.$clipCanvas = this.$el.querySelectorAll('.clip-canvas')[0];
+      this.$imgContainer = this.$el.querySelectorAll('.img-container')[0];
 
       this.$input.addEventListener('change', function () {
         const fd = new FileReader;
-
         fd.onloadend = function () {
           me.$imgs[0].src = fd.result;
           me.$imgs[1].src = fd.result;
@@ -60,26 +85,81 @@
         if (this.files) {
           fd.readAsDataURL(this.files[0]);
         }
-      })
+      });
+
+      window.addEventListener('mousemove', this.moveImg);
+      window.addEventListener('mouseup', this.disableMove);
+    },
+    beforeDestroy() {
+      window.removeEventListener('mousemove', this.moveImg);
+      window.removeEventListener('mouseup', this.disableMove);
     },
     methods: {
+      clearSelect() {
+        const box = this.$refs.box;
+        if (box) {
+          box.clearRec();
+        }
+      },
+      prepareMove(e) {
+        this.prePoint.x = e.pageX;
+        this.prePoint.y = e.pageY;
+        this.initPoint.x = e.pageX;
+        this.initPoint.y = e.pageY;
+        this.action = 'move';
+      },
+      moveImg(e) {
+        if (this.action !== 'move') {
+          return;
+        }
+        const $img = this.$imgs[0];
+        const dx = e.pageX - this.prePoint.x;
+        const dy = e.pageY - this.prePoint.y;
+        const l = (parseInt($img.style.left, 10) || 0) + dx;
+        const t = (parseInt($img.style.top, 10) || 0) + dy;
+        $img.style.left = `${l}px`;
+        $img.style.top = `${t}px`;
+        this.prePoint.x = e.pageX;
+        this.prePoint.y = e.pageY;
+        this.imgOption.left = e.pageX - this.initPoint.x;
+        this.imgOption.top = e.pageY - this.initPoint.y;
+      },
+      disableMove() {
+        this.action = '';
+      },
+      scaleImg(v) {
+        const cur = (100 + v);
+        const $img = this.$imgs[0];
+        const cw = this.$imgContainer.offsetWidth;
+        const ch = this.$imgContainer.offsetHeight;
+        const w = cw * cur / 100;
+        const h = ch * cur / 100;
+        const l = (cw - w) / 2 + this.imgOption.left;
+        const t = (ch - h) / 2 + this.imgOption.top;
+        this.imgOption.scale = cur / 100;
+        $img.setAttribute('style',
+            `width:${w}px;height:${h}px;left:${l}px;top:${t}px;`);
+      },
       clip() {
         const rec = this.$refs.box.rec;
         const ctx = this.$clipCanvas.getContext('2d');
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d');
+        const cw = this.$imgContainer.offsetWidth;
+        const ch = this.$imgContainer.offsetHeight;
         this.$clipCanvas.width = rec.w;
         this.$clipCanvas.height = rec.h;
-
-        tempCanvas.width = 600;
-        tempCanvas.height = 300;
-        tempCtx.drawImage(this.$imgs[0], 0, 0, 600, 300);
-        const imgData = tempCtx.getImageData(rec.l, rec.t, rec.w, rec.h);
         const bufferCanvas = document.createElement('canvas');
+        const bfx = bufferCanvas.getContext('2d');
+        tempCanvas.width = cw;
+        tempCanvas.height = ch;
+        tempCtx.drawImage(this.$imgs[0],
+            parseInt(this.$imgs[0].style.left, 10) || 0,
+            parseInt(this.$imgs[0].style.top, 10) || 0,
+            cw * this.imgOption.scale, ch * this.imgOption.scale);
         bufferCanvas.width = rec.w;
         bufferCanvas.height = rec.h;
-        const bfx = bufferCanvas.getContext('2d');
-        bfx.putImageData(imgData, 0, 0);
+        bfx.putImageData(tempCtx.getImageData(rec.l, rec.t, rec.w, rec.h), 0, 0);
         const dImg = new Image();
         const url = bufferCanvas.toDataURL('image/png');
         dImg.src = url;
@@ -102,13 +182,21 @@
     position: relative;
     width: 600px;
     height: 300px;
-    background-color: #9da0a4;
+    background-color: #f7f7f7;
+    overflow: hidden;
     float: left;
+  }
+  .img-container img {
+    width: 600px;
+    height: 300px;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
   .img-preview {
     width: 200px;
     height: 100px;
-    background-color: #9da0a4;
+    background-color: #f7f7f7;
     margin-left: 20px;
     float: left;
     overflow: hidden;

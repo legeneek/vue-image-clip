@@ -46,10 +46,12 @@
       },
       boxMouseDown(e) {
         this.initAction('move', e.pageX, e.pageY);
-        e.preventDefault();
         e.stopPropagation();
       },
       wrapMouseDown(e) {
+        if (this.rec.w && this.rec.h) {
+          return;
+        }
         this.initAction('cross', e.pageX, e.pageY);
         this.rec = {
           w: 0,
@@ -58,6 +60,7 @@
           t: e.pageY - this.pt
         };
         this.referPoint = { x: this.rec.l, y: this.rec.t };
+        e.stopPropagation();
       },
       disableDrag() {
         if (this.action) {
@@ -66,6 +69,10 @@
         }
         this.referPoint = { x: this.rec.l, y: this.rec.t };
         console.log(JSON.stringify(this.rec));
+      },
+      clearRec() {
+        this.action = '';
+        this.rec = { w: 0, h: 0, l: 0, t: 0 };
       },
       updateRec(e) {
         if (!this.action) {
@@ -175,6 +182,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    cursor: crosshair;
   }
   .crop-box {
     position: absolute;
@@ -183,6 +191,6 @@
     width: 0;
     height: 0;
     background: rgba(255,255,255,.2);
-    cursor: pointer;
+    cursor: move;
   }
 </style>

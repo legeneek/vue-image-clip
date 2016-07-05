@@ -38,19 +38,20 @@
     watch: {
       cur() {
         this.updateToggle();
+        this.$dispatch('sliderChange', this.cur);
       }
     },
     created() {
     },
     ready() {
       this.updateToggle();
-      this.moveHandler = throttle(this.dragUpdate, 150, this);
+      this.moveHandler = throttle(this.dragUpdate, 100, this);
 
-      window.addEventListener('mousemove', this.moveHandler);
+      window.addEventListener('mousemove', this.dragUpdate);
       window.addEventListener('mouseup', this.deactiveDrag);
     },
     beforeDestroy() {
-      window.removeEventListener('mousemove', this.moveHandler);
+      window.removeEventListener('mousemove', this.dragUpdate);
       window.removeEventListener('mouseup', this.deactiveDrag);
     },
     methods: {
@@ -136,6 +137,5 @@
     border-radius: 10px;
     border: 2px solid #fff;
     background-color: #6d757a;
-    transition: all .1s linear;
   }
 </style>
