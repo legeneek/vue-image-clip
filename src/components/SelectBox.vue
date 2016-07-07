@@ -1,6 +1,11 @@
 <template>
   <div class="crop-wrap" @mousedown="wrapMouseDown">
-    <div class="crop-box" @mousedown="boxMouseDown"></div>
+    <div class="crop-box" @mousedown="boxMouseDown" v-show="rec.w&&rec.h">
+      <span class="drag-point point-lt" @mousedown="pointMouseDown('drag-lt', $event)"></span>
+      <span class="drag-point point-lb" @mousedown="pointMouseDown('drag-lb', $event)"></span>
+      <span class="drag-point point-rt" @mousedown="pointMouseDown('drag-rt', $event)"></span>
+      <span class="drag-point point-rb" @mousedown="pointMouseDown('drag-rb', $event)"></span>
+    </div>
   </div>
 </template>
 
@@ -15,7 +20,7 @@
         parent: { l: 0, t: 0 },
         action: '',
         actionPoint: { x: 0, y: 0 },
-        radio: 16 / 9,
+        radio: 16 / 10,
         referPoint: { x: 0, y: 0 },
         $rec: null
       }
@@ -42,7 +47,22 @@
         this.action = name;
         this.pl = getLeft(this.$el);
         this.pt = getTop(this.$el);
-        this.actionPoint = { x, y }
+        this.actionPoint = { x, y };
+        this.referPoint = { x: this.rec.l, y: this.rec.t };
+
+        if (name === 'drag-lt') {
+          this.referPoint = { x: this.rec.l + this.rec.w, y: this.rec.t + this.rec.h };
+        } else if (name === 'drag-lb') {
+          this.referPoint = { x: this.rec.l + this.rec.w, y: this.rec.t };
+        } else if (name === 'drag-rt') {
+          this.referPoint = { x: this.rec.l, y: this.rec.t + this.rec.h };
+        } else if (name === 'drag-rb') {
+          this.referPoint = { x: this.rec.l, y: this.rec.t };
+        }
+      },
+      pointMouseDown(name, e) {
+        this.initAction(name, e.pageX, e.pageY);
+        e.stopPropagation();
       },
       boxMouseDown(e) {
         this.initAction('move', e.pageX, e.pageY);
@@ -59,14 +79,12 @@
           l: e.pageX - this.pl,
           t: e.pageY - this.pt
         };
-        this.referPoint = { x: this.rec.l, y: this.rec.t };
         e.stopPropagation();
       },
       disableDrag() {
         if (this.action) {
           this.action = '';
         }
-        this.referPoint = { x: this.rec.l, y: this.rec.t };
       },
       clearRec() {
         this.action = '';
@@ -81,6 +99,8 @@
         const elHeight = this.$el.offsetHeight;
         const dx = e.pageX - this.actionPoint.x;
         const dy = e.pageY - this.actionPoint.y;
+        const x = e.pageX;
+        const y = e.pageY;
         let w = 0;
         let h = 0;
         let t = 0;
@@ -160,6 +180,57 @@
             this.rec.h = h;
           }
         }
+
+        if (this.action === 'drag-lt' || this.action === 'drag-rt'
+            || this.action === 'drag-lb' || this.action === 'drag-rb') {
+          w = x - (this.referPoint.x + this.pl);
+          h = y - (this.referPoint.y + this.pt);
+          if (w < 0 && h < 0) {
+            w = w * -1 >= this.referPoint.x ? this.referPoint.x : w * -1;
+            h = w / this.radio;
+
+            if (h >= this.referPoint.y) {
+              h = this.referPoint.y;
+              w = h * this.radio;
+            }
+            this.rec.l = this.referPoint.x - w;
+            this.rec.t = this.referPoint.y - h;
+          } else if (w < 0 && h > 0) {
+            w = w * -1 >= this.referPoint.x ? this.referPoint.x : w * -1;
+            h = w / this.radio;
+
+            if (h >= elHeight - this.referPoint.y) {
+              h = elHeight - this.referPoint.y;
+              w = h * this.radio;
+            }
+            this.rec.l = this.referPoint.x - w;
+            this.rec.t = this.referPoint.y;
+          } else if (w > 0 && h < 0) {
+            w = w >= elWidth - this.referPoint.x ? elWidth - this.referPoint.x : w;
+            h = w / this.radio;
+
+            if (h >= this.referPoint.y) {
+              h = this.referPoint.y;
+              w = h * this.radio;
+            }
+            this.rec.l = this.referPoint.x;
+            this.rec.t = this.referPoint.y - h;
+          } else if (w > 0 && h > 0) {
+            w = w >= elWidth - this.referPoint.x ? elWidth - this.referPoint.x : w;
+            h = w / this.radio;
+
+            if (h >= elHeight - this.referPoint.y) {
+              h = elHeight - this.referPoint.y;
+              w = h * this.radio;
+            }
+            this.rec.l = this.referPoint.x;
+            this.rec.t = this.referPoint.y;
+          }
+
+          this.rec.w = w;
+          this.rec.h = h;
+        }
+
         this.$dispatch('selectChange');
       },
       drawRec() {
@@ -192,5 +263,32 @@
     background-color: rgba(255,255,255,.1);
     cursor: move;
     border: 1px solid #39f;
+  }
+  .drag-point {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border: 1px solid #39f;
+    position: absolute;
+  }
+  .point-lt {
+    top: -10px;
+    left: -10px;
+    cursor: nw-resize;
+  }
+  .point-lb {
+    left: -10px;
+    bottom: -10px;
+    cursor: sw-resize;
+  }
+  .point-rt {
+    right: -10px;
+    top: -10px;
+    cursor: ne-resize;
+  }
+  .point-rb {
+    right: -10px;
+    bottom: -10px;
+    cursor: se-resize;
   }
 </style>
