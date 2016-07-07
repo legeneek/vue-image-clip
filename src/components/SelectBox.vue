@@ -1,6 +1,6 @@
 <template>
   <div class="crop-wrap" @mousedown="wrapMouseDown">
-    <div class="crop-box" @mousedown="boxMouseDown" v-show="rec.w&&rec.h">
+    <div class="crop-box" @mousedown="boxMouseDown" :class="{'show': showBox}">
       <span class="drag-point point-lt" @mousedown="pointMouseDown('drag-lt', $event)"></span>
       <span class="drag-point point-lb" @mousedown="pointMouseDown('drag-lb', $event)"></span>
       <span class="drag-point point-rt" @mousedown="pointMouseDown('drag-rt', $event)"></span>
@@ -23,6 +23,11 @@
         radio: 16 / 10,
         referPoint: { x: 0, y: 0 },
         $rec: null
+      }
+    },
+    computed: {
+      showBox() {
+        return this.rec.w && this.rec.h;
       }
     },
     watch: {
@@ -256,6 +261,7 @@
   }
   .crop-box {
     position: absolute;
+    display: none;
     top: 0;
     left: 0;
     width: 0;
@@ -263,6 +269,9 @@
     background-color: rgba(255,255,255,.1);
     cursor: move;
     border: 1px solid #39f;
+  }
+  .crop-box.show {
+    display: block;
   }
   .drag-point {
     display: inline-block;
