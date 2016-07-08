@@ -268,7 +268,7 @@
     height: 0;
     background-color: rgba(255,255,255,.1);
     cursor: move;
-    border: 1px solid #39f;
+    border: 1px solid #fff;
   }
   .crop-box.show {
     display: block;
@@ -277,7 +277,7 @@
     display: inline-block;
     width: 10px;
     height: 10px;
-    border: 1px solid #39f;
+    border: 1px solid #fff;
     position: absolute;
   }
   .point-lt {

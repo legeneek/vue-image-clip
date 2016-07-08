@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <Image-Cropper></Image-Cropper>
+    <Custom-Cropper></Custom-Cropper>
   </div>
 </template>
 
 <script>
-  import ImageCropper from './components/ImageCropper';
+  import CustomCropper from './components/CustomCropper';
 
   export default {
     components: {
-      ImageCropper
+      CustomCropper
     }
   };
 </script>
