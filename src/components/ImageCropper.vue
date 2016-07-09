@@ -1,21 +1,22 @@
 <template>
   <div class="image-cropper">
-    <div class="img-container" @mousedown="prepareMove">
-      <img>
-      <Select-Box v-ref:box></Select-Box>
-    </div>
-    <div class="img-preview">
-      <img>
-    </div>
-    <div>
-      <canvas class="clip-canvas"></canvas>
+    <div class="wrap">
+      <div class="img-container" @mousedown="prepareMove">
+        <img id="clip_src_img" @load="clearSelect">
+        <Select-Box v-ref:box></Select-Box>
+      </div>
+      <div class="img-preview">
+        <img id="clip_res_img">
+      </div>
     </div>
     <div class="img-action">
-      <input type="file" id="file_input" accept="image/*" title="请选择封面图"/>
-      <button @click="clearSelect">clear</button>
-      <div class="slider-wrap">
-        <Slide min="-100" max="100" :cur.sync="sliderValue" step="5"></Slide>
-      </div>
+      <span class="change-img action-btn">
+        <input type="file" id="file_input" accept="image/*"/>选择图片
+      </span>
+      <span class="action-btn" @click="clearSelect">重置</span>
+    </div>
+    <div class="slider-wrap">
+      <Slide min="-100" max="100" :cur.sync="sliderValue" step="5"></Slide>
     </div>
   </div>
 </template>
@@ -32,7 +33,8 @@
     data() {
       return {
         $clipCanvas: null,
-        $imgs: null,
+        $srcImg: null,
+        $resImg: null,
         $input: null,
         $imgContainer: null,
         imgOption: {
@@ -75,7 +77,8 @@
     ready() {
       const me = this;
       this.$input = this.$el.querySelectorAll('#file_input')[0];
-      this.$imgs = this.$el.querySelectorAll('img');
+      this.$srcImg = this.$el.querySelectorAll('#clip_src_img')[0];
+      this.$resImg = this.$el.querySelectorAll('#clip_res_img')[0];
       this.$clipCanvas = this.$el.querySelectorAll('.clip-canvas')[0];
       this.$imgContainer = this.$el.querySelectorAll('.img-container')[0];
 
@@ -83,10 +86,9 @@
         const fd = new FileReader;
         fd.onloadend = function () {
           me.loaded = true;
-          me.$imgs[0].src = fd.result;
-          me.$imgs[1].src = fd.result;
+          me.$srcImg.src = fd.result;
         };
-        if (this.files) {
+        if (this.files && this.files[0]) {
           fd.readAsDataURL(this.files[0]);
         }
       });
@@ -100,21 +102,18 @@
     },
     methods: {
       clearSelect() {
-        if (!this.loaded) {
-          return;
-        }
         const box = this.$refs.box;
-        const $img = this.$imgs[0];
         const cw = this.$imgContainer.offsetWidth;
         const ch = this.$imgContainer.offsetHeight;
         if (box) {
           box.clearRec();
         }
-        this.imgOption = { scale: 1, left: 0, top: 0 };
         this.sliderValue = 0;
         this.clipData = null;
-        $img.setAttribute('style',
+        this.imgOption = { scale: 1, left: 0, top: 0 };
+        this.$srcImg.setAttribute('style',
             `width:${cw}px;height:${ch}px;left:0px;top:0px;`);
+        this.$resImg.src = '';
       },
       prepareMove(e) {
         this.prePoint.x = e.pageX;
@@ -130,13 +129,12 @@
         this.move(e.pageX, e.pageY);
       },
       move(x, y) {
-        const $img = this.$imgs[0];
         const dx = x - this.prePoint.x;
         const dy = y - this.prePoint.y;
-        const l = (parseInt($img.style.left, 10) || 0) + dx;
-        const t = (parseInt($img.style.top, 10) || 0) + dy;
-        $img.style.left = `${l}px`;
-        $img.style.top = `${t}px`;
+        const l = (parseInt(this.$srcImg.style.left, 10) || 0) + dx;
+        const t = (parseInt(this.$srcImg.style.top, 10) || 0) + dy;
+        this.$srcImg.style.left = `${l}px`;
+        this.$srcImg.style.top = `${t}px`;
         this.prePoint.x = x;
         this.prePoint.y = y;
         this.imgOption.left = x - this.initPoint.x;
@@ -146,7 +144,6 @@
         this.action = '';
       },
       resize(v) {
-        const $img = this.$imgs[0];
         const cw = this.$imgContainer.offsetWidth;
         const ch = this.$imgContainer.offsetHeight;
         const w = cw * v;
@@ -154,7 +151,7 @@
         const l = (cw - w) / 2 + this.imgOption.left;
         const t = (ch - h) / 2 + this.imgOption.top;
         this.imgOption.scale = v;
-        $img.setAttribute('style',
+        this.$srcImg.setAttribute('style',
             `width:${w}px;height:${h}px;left:${l}px;top:${t}px;`);
       },
       clip() {
@@ -163,33 +160,24 @@
           return;
         }
 
-        const ctx = this.$clipCanvas.getContext('2d');
         const tempCanvas = document.createElement('canvas');
         const tempCtx = tempCanvas.getContext('2d');
         const cw = this.$imgContainer.offsetWidth;
         const ch = this.$imgContainer.offsetHeight;
-        this.$clipCanvas.width = rec.w;
-        this.$clipCanvas.height = rec.h;
         const bufferCanvas = document.createElement('canvas');
         const bfx = bufferCanvas.getContext('2d');
         tempCanvas.width = cw;
         tempCanvas.height = ch;
-        tempCtx.drawImage(this.$imgs[0],
-            parseInt(this.$imgs[0].style.left, 10) || 0,
-            parseInt(this.$imgs[0].style.top, 10) || 0,
+        tempCtx.drawImage(this.$srcImg,
+            parseInt(this.$srcImg.style.left, 10) || 0,
+            parseInt(this.$srcImg.style.top, 10) || 0,
             cw * this.imgOption.scale, ch * this.imgOption.scale);
         bufferCanvas.width = rec.w;
         bufferCanvas.height = rec.h;
         bfx.putImageData(tempCtx.getImageData(rec.l, rec.t, rec.w, rec.h), 0, 0);
-        const dImg = new Image();
         const url = bufferCanvas.toDataURL('image/png');
         this.clipData = url;
-        dImg.src = url;
-        this.$imgs[1].src = url;
-        dImg.onload = function () {
-          ctx.clearRect(0, 0, rec.w, rec.h);
-          ctx.drawImage(dImg, 0, 0, rec.w, rec.h);
-        };
+        this.$resImg.src = url;
       }
     }
   }
@@ -200,6 +188,10 @@
     margin-top: 20px;
     width: 300px;
   }
+  .wrap {
+    overflow: hidden;
+    zoom: 1;
+  }
   .img-container {
     position: relative;
     width: 600px;
@@ -209,8 +201,8 @@
     float: left;
   }
   .img-container img {
-    width: 600px;
-    height: 300px;
+    width: 100%;
+    height: 100%;
     position: absolute;
     top: 0;
     left: 0;
@@ -228,9 +220,27 @@
     height: 100%;
   }
   .img-action {
-    clear: left;
+    margin-top: 10px;
   }
-  .clip-canvas {
-    margin-left: 20px;
+  .change-img {
+    position: relative;
+    overflow: hidden;
+    margin-right: 100px;
+  }
+  .change-img input {
+    position: absolute;
+    opacity: 0;
+    font-size: 100px;
+    right: 0;
+    top: 0;
+    cursor: pointer;
+  }
+  .action-btn {
+    font-size: 14px;
+    display: inline-block;
+    padding: 4px 8px;
+    border: 1px solid #9da0a4;
+    cursor: pointer;
+    vertical-align: top;
   }
 </style>
