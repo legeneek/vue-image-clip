@@ -54,7 +54,10 @@
         initPoint: { x: 0, y: 0 },
         clipData: null,
         loaded: false,
-        radio: 16 / 10
+        radio: 16 / 10,
+        imgRadio: 1,
+        tempCanvas: null,
+        tempCtx: null
       }
     },
     events: {
@@ -81,6 +84,8 @@
           fd.readAsDataURL(this.files[0]);
         }
       });
+      this.tempCanvas = document.createElement('canvas');
+      this.tempCtx = this.tempCanvas.getContext('2d');
     },
     beforeDestroy() {
       this.$input.removeEventListener('change');
@@ -89,40 +94,60 @@
       srcImgLoaded() {
         this.nw = this.$srcImg.naturalWidth;
         this.nh = this.$srcImg.naturalHeight;
+        this.tempCanvas.width = this.nw;
+        this.tempCanvas.height = this.nh;
+        this.tempCtx.drawImage(this.$srcImg, 0, 0, this.nw, this.nh);
+        this.clearSelect();
         this.setImgSize();
+        this.clip();
       },
       setImgSize() {
+        const nr = this.nw / this.nh;
         let w = 0;
         let h = 0;
         let mt = 0;
-        if (this.nw / this.nh >= 16 / 10) {
+        let rw = 0;
+        let rh = 0;
+        if (nr >= 16 / 10) {
           //  宽撑满
           w = 480;
-          h = this.nh * 480 / this.nw;
+          h = 480 / nr;
           mt = (300 - h) / 2;
+          rh = h;
+          rw = rh * (16 / 10);
         } else {
           //  高撑满
           h = 300;
-          w = this.nw * 300 / this.nh;
+          w = 300 * nr;
+          rw = w;
+          rh = rw / (16 / 10);
         }
+        this.imgRadio = w / this.nw;
         this.$imgContainer.setAttribute('style', `width:${w}px;height:${h}px;top:${mt}px;`);
+        this.$refs.box.rec = { w: rw, h: rh, l: 0, t: 0 }
       },
       clearSelect() {
         const box = this.$refs.box;
-        const $img = this.$imgs[0];
-        const cw = this.$imgContainer.offsetWidth;
-        const ch = this.$imgContainer.offsetHeight;
         if (box) {
           box.clearRec();
         }
-        if (!this.loaded) {
-          return;
-        }
-        this.imgOption = { scale: 1, left: 0, top: 0 };
-        this.sliderValue = 0;
         this.clipData = null;
-        $img.setAttribute('style',
-            `width:${cw}px;height:${ch}px;left:0px;top:0px;`);
+        this.$resImg.src = '';
+      },
+      getComputedRec(r) {
+        const rec = { l: 0, t: 0,
+          w: r.w / this.imgRadio, h: r.h / this.imgRadio };
+        const diff = Math.abs(this.imgRadio - 1);
+
+        if (this.imgRadio >= 1) {
+          rec.l = r.l - r.l * diff;
+          rec.t = r.t - r.t * diff;
+        } else {
+          rec.l = r.l + r.l * diff;
+          rec.t = r.t + r.t * diff;
+        }
+        console.log(rec);
+        return rec;
       },
       clip() {
         const rec = this.$refs.box.rec;
@@ -130,33 +155,19 @@
           return;
         }
 
-        const ctx = this.$clipCanvas.getContext('2d');
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        const cw = this.$imgContainer.offsetWidth;
-        const ch = this.$imgContainer.offsetHeight;
-        this.$clipCanvas.width = rec.w;
-        this.$clipCanvas.height = rec.h;
         const bufferCanvas = document.createElement('canvas');
         const bfx = bufferCanvas.getContext('2d');
-        tempCanvas.width = cw;
-        tempCanvas.height = ch;
-        tempCtx.drawImage(this.$imgs[0],
-            parseInt(this.$imgs[0].style.left, 10) || 0,
-            parseInt(this.$imgs[0].style.top, 10) || 0,
-            cw * this.imgOption.scale, ch * this.imgOption.scale);
-        bufferCanvas.width = rec.w;
-        bufferCanvas.height = rec.h;
-        bfx.putImageData(tempCtx.getImageData(rec.l, rec.t, rec.w, rec.h), 0, 0);
+        bufferCanvas.width = rec.w / this.imgRadio;
+        bufferCanvas.height = rec.h / this.imgRadio;
+        const computedRec = this.getComputedRec(rec);
+        bfx.putImageData(
+            this.tempCtx.getImageData(computedRec.l, computedRec.t, computedRec.w, computedRec.h)
+            , 0, 0);
         const dImg = new Image();
         const url = bufferCanvas.toDataURL('image/png');
         this.clipData = url;
         dImg.src = url;
-        this.$imgs[1].src = url;
-        dImg.onload = function () {
-          ctx.clearRect(0, 0, rec.w, rec.h);
-          ctx.drawImage(dImg, 0, 0, rec.w, rec.h);
-        };
+        this.$resImg.src = url;
       }
     }
   }
