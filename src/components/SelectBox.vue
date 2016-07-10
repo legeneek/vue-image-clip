@@ -89,6 +89,7 @@
       disableDrag() {
         if (this.action) {
           this.action = '';
+          this.$dispatch('selectEnd');
         }
       },
       clearRec() {
@@ -235,7 +236,6 @@
           this.rec.w = w;
           this.rec.h = h;
         }
-
         this.$dispatch('selectChange');
       },
       drawRec() {

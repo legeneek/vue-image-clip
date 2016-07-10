@@ -48,20 +48,24 @@
         $resImg: null,
         $input: null,
         $imgContainer: null,
+        $preContainer: null,
         nw: 0,
         nh: 0,
         prePoint: { x: 0, y: 0 },
         initPoint: { x: 0, y: 0 },
         clipData: null,
         loaded: false,
-        radio: 16 / 10,
-        imgRadio: 1,
-        tempCanvas: null,
-        tempCtx: null
+        radio: 16 / 10
       }
     },
     events: {
       selectChange() {
+        const rec = this.$refs.box.rec;
+        if (rec.w > 0 && rec.h > 0 && this.loaded) {
+          this.updatePreview();
+        }
+      },
+      selectEnd() {
         const rec = this.$refs.box.rec;
         if (rec.w > 0 && rec.h > 0 && this.loaded) {
           this.clip();
@@ -74,18 +78,18 @@
       this.$srcImg = this.$el.querySelectorAll('#clip_src_img')[0];
       this.$resImg = this.$el.querySelectorAll('#clip_res_img')[0];
       this.$imgContainer = this.$el.querySelectorAll('.img-container')[0];
+      this.$preContainer = this.$el.querySelectorAll('.pre-container')[0];
       this.$input.addEventListener('change', function () {
         const fd = new FileReader;
         fd.onloadend = function () {
           me.loaded = true;
           me.$srcImg.src = fd.result;
+          me.$resImg.src = fd.result;
         };
         if (this.files && this.files[0]) {
           fd.readAsDataURL(this.files[0]);
         }
       });
-      this.tempCanvas = document.createElement('canvas');
-      this.tempCtx = this.tempCanvas.getContext('2d');
     },
     beforeDestroy() {
       this.$input.removeEventListener('change');
@@ -94,15 +98,15 @@
       srcImgLoaded() {
         this.nw = this.$srcImg.naturalWidth;
         this.nh = this.$srcImg.naturalHeight;
-        this.tempCanvas.width = this.nw;
-        this.tempCanvas.height = this.nh;
-        this.tempCtx.drawImage(this.$srcImg, 0, 0, this.nw, this.nh);
         this.clearSelect();
         this.setImgSize();
+        this.updatePreview();
         this.clip();
       },
       setImgSize() {
         const nr = this.nw / this.nh;
+        const scw = 480;
+        const sch = 300;
         let w = 0;
         let h = 0;
         let mt = 0;
@@ -110,19 +114,18 @@
         let rh = 0;
         if (nr >= 16 / 10) {
           //  宽撑满
-          w = 480;
-          h = 480 / nr;
-          mt = (300 - h) / 2;
+          w = scw;
+          h = scw / nr;
+          mt = (sch - h) / 2;
           rh = h;
           rw = rh * (16 / 10);
         } else {
           //  高撑满
-          h = 300;
-          w = 300 * nr;
+          h = sch;
+          w = sch * nr;
           rw = w;
           rh = rw / (16 / 10);
         }
-        this.imgRadio = w / this.nw;
         this.$imgContainer.setAttribute('style', `width:${w}px;height:${h}px;top:${mt}px;`);
         this.$refs.box.rec = { w: rw, h: rh, l: 0, t: 0 }
       },
@@ -132,22 +135,28 @@
           box.clearRec();
         }
         this.clipData = null;
-        this.$resImg.src = '';
       },
       getComputedRec(r) {
-        const rec = { l: 0, t: 0,
-          w: r.w / this.imgRadio, h: r.h / this.imgRadio };
-        const diff = Math.abs(this.imgRadio - 1);
-
-        if (this.imgRadio >= 1) {
-          rec.l = r.l - r.l * diff;
-          rec.t = r.t - r.t * diff;
-        } else {
-          rec.l = r.l + r.l * diff;
-          rec.t = r.t + r.t * diff;
-        }
-        console.log(rec);
+        const cw = this.$imgContainer.offsetWidth;
+        const ch = this.$imgContainer.offsetHeight;
+        const wr = cw / this.nw;
+        const hr = ch / this.nh;
+        const rec = { l: r.l / wr, t: r.t / hr,
+          w: r.w / wr, h: r.h / hr };
         return rec;
+      },
+      updatePreview() {
+        const rec = this.$refs.box.rec;
+        const pcw = this.$preContainer.offsetWidth;
+        const pch = this.$preContainer.offsetHeight;
+        const wr = pcw / rec.w;
+        const hr = pch / rec.h;
+        const w = wr * this.$imgContainer.offsetWidth;
+        const h = hr * this.$imgContainer.offsetHeight;
+        const l = -rec.l * wr;
+        const t = -rec.t * hr;
+        this.$resImg.setAttribute('style',
+        `width:${w}px;height:${h}px;top:${t}px;left:${l}px;`);
       },
       clip() {
         const rec = this.$refs.box.rec;
@@ -157,17 +166,11 @@
 
         const bufferCanvas = document.createElement('canvas');
         const bfx = bufferCanvas.getContext('2d');
-        bufferCanvas.width = rec.w / this.imgRadio;
-        bufferCanvas.height = rec.h / this.imgRadio;
         const computedRec = this.getComputedRec(rec);
-        bfx.putImageData(
-            this.tempCtx.getImageData(computedRec.l, computedRec.t, computedRec.w, computedRec.h)
-            , 0, 0);
-        const dImg = new Image();
-        const url = bufferCanvas.toDataURL('image/png');
-        this.clipData = url;
-        dImg.src = url;
-        this.$resImg.src = url;
+        bufferCanvas.width = computedRec.w;
+        bufferCanvas.height = computedRec.h;
+        bfx.drawImage(this.$srcImg, -computedRec.l, -computedRec.t, this.nw, this.nh);
+        this.clipData = bufferCanvas.toDataURL('image/png');
       }
     }
   }
@@ -219,10 +222,9 @@
   .img-container {
     position: relative;
     margin: auto;
-    width: 100%;
-    height: 100%;
   }
   .img-container img{
+    position: relative;
     width: 100%;
     height: 100%;
   }
@@ -254,9 +256,11 @@
     width: 240px;
     height: 150px;
     background-color: #000;
+    overflow: hidden;
     border-radius: 4px;
   }
   .pre-container img {
+    position: relative;
     width: 100%;
     height: 100%;
     border-radius: 4px;
