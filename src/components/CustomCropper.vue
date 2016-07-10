@@ -11,7 +11,7 @@
           <div class="container-bg">
             <div class="img-container">
               <img id="clip_src_img" @load="srcImgLoaded">
-              <Select-Box v-ref:box></Select-Box>
+              <Select-Box v-ref:box :radio="radio"></Select-Box>
             </div>
           </div>
           <div class="reset-img">
@@ -92,7 +92,6 @@
       });
     },
     beforeDestroy() {
-      this.$input.removeEventListener('change');
     },
     methods: {
       srcImgLoaded() {
@@ -112,19 +111,19 @@
         let mt = 0;
         let rw = 0;
         let rh = 0;
-        if (nr >= 16 / 10) {
+        if (nr >= this.radio) {
           //  宽撑满
           w = scw;
           h = scw / nr;
           mt = (sch - h) / 2;
           rh = h;
-          rw = rh * (16 / 10);
+          rw = rh * this.radio;
         } else {
           //  高撑满
           h = sch;
           w = sch * nr;
           rw = w;
-          rh = rw / (16 / 10);
+          rh = rw / this.radio;
         }
         this.$imgContainer.setAttribute('style', `width:${w}px;height:${h}px;top:${mt}px;`);
         this.$refs.box.rec = { w: rw, h: rh, l: 0, t: 0 }
@@ -141,9 +140,8 @@
         const ch = this.$imgContainer.offsetHeight;
         const wr = cw / this.nw;
         const hr = ch / this.nh;
-        const rec = { l: r.l / wr, t: r.t / hr,
+        return { l: r.l / wr, t: r.t / hr,
           w: r.w / wr, h: r.h / hr };
-        return rec;
       },
       updatePreview() {
         const rec = this.$refs.box.rec;

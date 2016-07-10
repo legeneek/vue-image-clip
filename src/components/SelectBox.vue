@@ -13,6 +13,11 @@
   import { getLeft, getTop } from '../util'
 
   export default {
+    props: {
+      radio: {
+        default: 16 / 10
+      }
+    },
     components: {},
     data() {
       return {
@@ -20,7 +25,6 @@
         parent: { l: 0, t: 0 },
         action: '',
         actionPoint: { x: 0, y: 0 },
-        radio: 16 / 10,
         referPoint: { x: 0, y: 0 },
         $rec: null
       }
