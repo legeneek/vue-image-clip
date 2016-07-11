@@ -17,7 +17,7 @@
           <div class="reset-img">
             <i class="icon-reset"></i>
             <span>重新选择</span>
-            <input type="file" id="file_input" accept="image/*">
+            <input type="file" id="file_input" accept="image/*" @change="fileChange">
           </div>
         </div>
         <div class="img-preview-wrap">
@@ -51,49 +51,45 @@
         $preContainer: null,
         nw: 0,
         nh: 0,
-        prePoint: { x: 0, y: 0 },
-        initPoint: { x: 0, y: 0 },
         clipData: null,
-        loaded: false,
         radio: 16 / 10
       }
     },
     events: {
       selectChange() {
         const rec = this.$refs.box.rec;
-        if (rec.w > 0 && rec.h > 0 && this.loaded) {
+        if (rec.w > 0 && rec.h > 0) {
           this.updatePreview();
         }
       },
       selectEnd() {
         const rec = this.$refs.box.rec;
-        if (rec.w > 0 && rec.h > 0 && this.loaded) {
+        if (rec.w > 0 && rec.h > 0) {
           this.clip();
         }
       }
     },
     ready() {
-      const me = this;
       this.$input = this.$el.querySelectorAll('#file_input')[0];
       this.$srcImg = this.$el.querySelectorAll('#clip_src_img')[0];
       this.$resImg = this.$el.querySelectorAll('#clip_res_img')[0];
       this.$imgContainer = this.$el.querySelectorAll('.img-container')[0];
       this.$preContainer = this.$el.querySelectorAll('.pre-container')[0];
-      this.$input.addEventListener('change', function () {
-        const fd = new FileReader;
-        fd.onloadend = function () {
-          me.loaded = true;
-          me.$srcImg.src = fd.result;
-          me.$resImg.src = fd.result;
-        };
-        if (this.files && this.files[0]) {
-          fd.readAsDataURL(this.files[0]);
-        }
-      });
     },
     beforeDestroy() {
     },
     methods: {
+      fileChange() {
+        const me = this;
+        const fd = new FileReader();
+        fd.onloadend = function () {
+          me.$srcImg.src = fd.result;
+          me.$resImg.src = fd.result;
+        };
+        if (this.$input.files && this.$input.files[0]) {
+          fd.readAsDataURL(this.$input.files[0]);
+        }
+      },
       srcImgLoaded() {
         this.nw = this.$srcImg.naturalWidth;
         this.nh = this.$srcImg.naturalHeight;
@@ -158,7 +154,7 @@
       },
       clip() {
         const rec = this.$refs.box.rec;
-        if (!rec.w || !rec.h || !this.loaded) {
+        if (!rec.w || !rec.h) {
           return;
         }
 
@@ -219,6 +215,7 @@
   }
   .img-container {
     position: relative;
+    height: 0;
     margin: auto;
   }
   .img-container img{
