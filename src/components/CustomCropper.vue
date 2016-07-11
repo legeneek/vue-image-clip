@@ -52,7 +52,8 @@
         nw: 0,
         nh: 0,
         clipData: null,
-        radio: 16 / 10
+        radio: 16 / 10,
+        bufferCanvas: null
       }
     },
     events: {
@@ -75,6 +76,7 @@
       this.$resImg = this.$el.querySelectorAll('#clip_res_img')[0];
       this.$imgContainer = this.$el.querySelectorAll('.img-container')[0];
       this.$preContainer = this.$el.querySelectorAll('.pre-container')[0];
+      this.bufferCanvas = document.createElement('canvas');
     },
     beforeDestroy() {
     },
@@ -93,10 +95,16 @@
       srcImgLoaded() {
         this.nw = this.$srcImg.naturalWidth;
         this.nh = this.$srcImg.naturalHeight;
+        this.setBuffer();
         this.clearSelect();
         this.setImgSize();
         this.updatePreview();
         this.clip();
+      },
+      setBuffer() {
+        this.bufferCanvas.width = this.nw;
+        this.bufferCanvas.height = this.nh;
+        this.bufferCanvas.getContext('2d').drawImage(this.$srcImg, 0, 0);
       },
       setImgSize() {
         const nr = this.nw / this.nh;
@@ -158,13 +166,13 @@
           return;
         }
 
-        const bufferCanvas = document.createElement('canvas');
-        const bfx = bufferCanvas.getContext('2d');
+        const clipCanvas = document.createElement('canvas');
+        const cx = clipCanvas.getContext('2d');
         const computedRec = this.getComputedRec(rec);
-        bufferCanvas.width = computedRec.w;
-        bufferCanvas.height = computedRec.h;
-        bfx.drawImage(this.$srcImg, -computedRec.l, -computedRec.t, this.nw, this.nh);
-        this.clipData = bufferCanvas.toDataURL('image/png');
+        clipCanvas.width = computedRec.w;
+        clipCanvas.height = computedRec.h;
+        cx.drawImage(this.bufferCanvas, -computedRec.l, -computedRec.t, this.nw, this.nh);
+        this.clipData = clipCanvas.toDataURL('image/png');
       }
     }
   }
