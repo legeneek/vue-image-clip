@@ -1,10 +1,9 @@
 <template>
-  <div class="bili-modal cropper-modal">
+  <div class="cropper-modal">
     <div class="overlay"></div>
     <div class="modal">
       <div class="modal-head">
-        <div class="head-wrap">建议上传高清封面960*600</div>
-        <i class="icon-close">+</i>
+        <div class="head-wrap">标题XXX</div>
       </div>
       <div class="modal-content clearfix">
         <div class="img-clip-wrap">
@@ -16,7 +15,7 @@
           </div>
           <div class="reset-img">
             <i class="icon-reset"></i>
-            <span>重新选择</span>
+            <span>选择图片</span>
             <input type="file" id="file_input" accept="image/*" @change="fileChange">
           </div>
         </div>
@@ -24,12 +23,11 @@
           <div class="pre-container">
             <img id="clip_res_img">
           </div>
-          <div class="pre-info">封面最终展示效果如上所示</div>
+          <div class="pre-info">展示效果如上所示</div>
         </div>
       </div>
       <div class="modal-footer">
-        <div class="modal-btn btn-confirm">确认</div>
-        <div class="modal-btn btn-cancel">取消</div>
+        <a class="modal-btn btn-confirm" :href="clipData" download="crop.png">确认</a>
       </div>
     </div>
   </div>
@@ -283,6 +281,7 @@
     line-height: 32px;
     border-radius: 4px;
     cursor: pointer;
+    text-decoration: none;
   }
   .btn-confirm {
     border: 1px solid #00a1d6;
@@ -291,14 +290,5 @@
   }
   .btn-confirm:hover {
     background-color: #00b5e5;
-  }
-  .btn-cancel {
-    margin-left: 16px;
-    border: 1px solid #ccd0d7;
-    color: #6d757a;
-    background-color: #fff;
-  }
-  .btn-cancel:hover {
-    color: #00b5e5;
   }
 </style>

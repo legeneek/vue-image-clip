@@ -18,7 +18,6 @@
         default: 16 / 10
       }
     },
-    components: {},
     data() {
       return {
         rec: { w: 0, h: 0, l: 0, t: 0 },
