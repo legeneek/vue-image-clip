@@ -73,6 +73,7 @@
       this.$resImg = this.$el.querySelectorAll('#clip_res_img')[0];
       this.$imgContainer = this.$el.querySelectorAll('.img-container')[0];
       this.$preContainer = this.$el.querySelectorAll('.pre-container')[0];
+      this.$containerBox = this.$el.querySelectorAll('.container-bg')[0];
     },
     beforeDestroy() {
     },
@@ -98,8 +99,8 @@
       },
       setImgSize() {
         const nr = this.nw / this.nh;
-        const scw = 480;
-        const sch = 300;
+        const scw = this.$containerBox.offsetWidth;
+        const sch = this.$containerBox.offsetHeight;
         let w = 0;
         let h = 0;
         let mt = 0;

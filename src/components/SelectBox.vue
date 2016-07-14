@@ -115,7 +115,7 @@
         let t = 0;
         let l = 0;
 
-        if (dx === 0 || dy === 0) {
+        if (dx === 0 && dy === 0) {
           return;
         }
 
@@ -137,9 +137,7 @@
 
           this.rec.l = l;
           this.rec.t = t;
-        }
-
-        if (this.action === 'cross') {
+        } else if (this.action === 'cross') {
           if (dx > 0 && dy > 0) {
             w = dx + this.rec.l >= elWidth ? elWidth - this.rec.l : dx;
             h = w / this.radio;
@@ -188,9 +186,7 @@
             this.rec.w = w;
             this.rec.h = h;
           }
-        }
-
-        if (this.action === 'drag-lt' || this.action === 'drag-rt'
+        } else if (this.action === 'drag-lt' || this.action === 'drag-rt'
             || this.action === 'drag-lb' || this.action === 'drag-rb') {
           w = x - (this.referPoint.x + this.pl);
           h = y - (this.referPoint.y + this.pt);
