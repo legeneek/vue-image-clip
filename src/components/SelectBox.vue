@@ -21,7 +21,8 @@
     data() {
       return {
         rec: { w: 0, h: 0, l: 0, t: 0 },
-        parent: { l: 0, t: 0 },
+        pl: 0,
+        pt: 0,
         action: '',
         actionPoint: { x: 0, y: 0 },
         referPoint: { x: 0, y: 0 },
