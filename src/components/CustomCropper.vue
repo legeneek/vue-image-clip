@@ -10,7 +10,8 @@
           <div class="container-bg">
             <div class="img-container">
               <img id="clip_src_img" @load="srcImgLoaded">
-              <Select-Box v-ref:box :radio="radio"></Select-Box>
+              <div class="shadow-box"></div>
+              <Select-Box v-ref:box :radio="radio" :img="img"></Select-Box>
             </div>
           </div>
           <div class="reset-img">
@@ -27,7 +28,7 @@
         </div>
       </div>
       <div class="modal-footer">
-        <a class="modal-btn btn-confirm" :href="clipData" download="crop.png">确认</a>
+        <a class="modal-btn btn-confirm" :href="clipData" download="crop.jpg">确认</a>
       </div>
     </div>
   </div>
@@ -44,6 +45,7 @@
       return {
         $srcImg: null,
         $resImg: null,
+        img: null,
         $input: null,
         $imgContainer: null,
         $preContainer: null,
@@ -67,6 +69,12 @@
         }
       }
     },
+    watch: {
+      img(img) {
+        this.$srcImg.src = img;
+        this.$resImg.src = img;
+      }
+    },
     ready() {
       this.$input = this.$el.querySelectorAll('#file_input')[0];
       this.$srcImg = this.$el.querySelectorAll('#clip_src_img')[0];
@@ -82,8 +90,7 @@
         const me = this;
         const fd = new FileReader();
         fd.onloadend = function () {
-          me.$srcImg.src = fd.result;
-          me.$resImg.src = fd.result;
+          me.img = fd.result;
         };
         if (this.$input.files && this.$input.files[0]) {
           fd.readAsDataURL(this.$input.files[0]);
@@ -121,7 +128,8 @@
           rh = rw / this.radio;
         }
         this.$imgContainer.setAttribute('style', `width:${w}px;height:${h}px;top:${mt}px;`);
-        this.$refs.box.rec = { w: rw, h: rh, l: 0, t: 0 }
+        this.$refs.box.rec = { w: rw, h: rh, l: 0, t: 0 };
+        this.$broadcast('containerSizeChange', { w, h });
       },
       clearSelect() {
         const box = this.$refs.box;
@@ -163,7 +171,7 @@
         bufferCanvas.width = computedRec.w;
         bufferCanvas.height = computedRec.h;
         bfx.drawImage(this.$srcImg, -computedRec.l, -computedRec.t, this.nw, this.nh);
-        this.clipData = bufferCanvas.toDataURL('image/png');
+        this.clipData = bufferCanvas.toDataURL('image/jpeg', 0.9);
       }
     }
   }
@@ -221,6 +229,15 @@
     position: relative;
     width: 100%;
     height: 100%;
+  }
+  .img-container .shadow-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    z-index: 1;
   }
   .reset-img {
     position: relative;

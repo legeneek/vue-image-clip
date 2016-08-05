@@ -1,5 +1,8 @@
 <template>
   <div class="crop-wrap" @mousedown="wrapMouseDown">
+    <div class="shadow-box">
+      <img :src="img" class="shadow-img">
+    </div>
     <div class="crop-box" @mousedown="boxMouseDown" :class="{'show': showBox}">
       <span class="drag-point point-lt" @mousedown="pointMouseDown('drag-lt', $event)"></span>
       <span class="drag-point point-lb" @mousedown="pointMouseDown('drag-lb', $event)"></span>
@@ -16,6 +19,9 @@
     props: {
       radio: {
         default: 16 / 10
+      },
+      img: {
+        default: ''
       }
     },
     data() {
@@ -44,8 +50,14 @@
     },
     ready() {
       this.$rec = this.$el.querySelectorAll('.crop-box')[0];
+      this.$img = this.$el.querySelectorAll('.shadow-img')[0];
+      this.$shadowBox = this.$el.querySelectorAll('.shadow-box')[0];
       window.addEventListener('mouseup', this.disableDrag);
-      window.addEventListener('mousemove', this.updateRec)
+      window.addEventListener('mousemove', this.updateRec);
+      this.$on('containerSizeChange', function (o) {
+        this.$img.style.width = `${o.w}px`;
+        this.$img.style.height = `${o.h}px`;
+      })
     },
     beforeDestory() {
       window.removeEventListener('mouseup', this.disableDrag);
@@ -244,7 +256,13 @@
         }
 
         this.$rec.setAttribute('style',
-            `width:${this.rec.w}px;height:${this.rec.h}px;left:${this.rec.l}px;top:${this.rec.t}px`);
+            `width:${this.rec.w}px;height:${this.rec.h}px;
+            left:${this.rec.l}px;top:${this.rec.t}px;z-index:2;`);
+        this.$shadowBox.setAttribute('style',
+            `width:${this.rec.w}px;height:${this.rec.h}px;
+            left:${this.rec.l}px;top:${this.rec.t}px;z-index:1;`);
+        this.$img.style.left = `-${this.rec.l}px`;
+        this.$img.style.top = `-${this.rec.t}px`;
       }
     }
   }
@@ -257,6 +275,7 @@
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 10;
     cursor: crosshair;
   }
   .crop-box {
@@ -266,7 +285,6 @@
     left: 0;
     width: 0;
     height: 0;
-    background-color: rgba(255,255,255,.1);
     cursor: move;
     border: 1px solid #fff;
   }
@@ -299,5 +317,16 @@
     right: -10px;
     bottom: -10px;
     cursor: se-resize;
+  }
+  .shadow-box {
+    position: absolute;
+    top: 0;
+    left: 0;
+    overflow: hidden;
+  }
+  .shadow-img {
+    position: absolute;
+    top: 0;
+    left: 0;
   }
 </style>
