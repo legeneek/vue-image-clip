@@ -7,7 +7,16 @@
 </template>
 
 <script>
-  import { getLeft } from '../util.js'
+  function getLeft(el) {
+    let left = el.offsetLeft;
+    let parent = el.offsetParent;
+
+    while (parent) {
+      left += parent.offsetLeft;
+      parent = parent.offsetParent;
+    }
+    return left;
+  }
 
   export default {
     props: {

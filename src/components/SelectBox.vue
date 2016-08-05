@@ -13,8 +13,6 @@
 </template>
 
 <script>
-  import { getLeft, getTop } from '../util'
-
   export default {
     props: {
       radio: {
@@ -54,7 +52,7 @@
       this.$shadowBox = this.$el.querySelectorAll('.shadow-box')[0];
       window.addEventListener('mouseup', this.disableDrag);
       window.addEventListener('mousemove', this.updateRec);
-      this.$on('containerSizeChange', function (o) {
+      this.$on('imgSizeChange', function (o) {
         this.$img.style.width = `${o.w}px`;
         this.$img.style.height = `${o.h}px`;
       })
@@ -64,10 +62,30 @@
       window.removeEventListener('mousemove', this.updateRec)
     },
     methods: {
+      getLeft(el) {
+        let left = el.offsetLeft;
+        let parent = el.offsetParent;
+
+        while (parent) {
+          left += parent.offsetLeft;
+          parent = parent.offsetParent;
+        }
+        return left;
+      },
+      getTop(el) {
+        let top = el.offsetTop;
+        let parent = el.offsetParent;
+
+        while (parent) {
+          top += parent.offsetTop;
+          parent = parent.offsetParent;
+        }
+        return top;
+      },
       initAction(name, x, y) {
         this.action = name;
-        this.pl = getLeft(this.$el);
-        this.pt = getTop(this.$el);
+        this.pl = this.getLeft(this.$el);
+        this.pt = this.getTop(this.$el);
         this.actionPoint = { x, y };
         this.referPoint = { x: this.rec.l, y: this.rec.t };
 

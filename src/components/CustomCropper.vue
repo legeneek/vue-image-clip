@@ -3,7 +3,7 @@
     <div class="overlay"></div>
     <div class="modal">
       <div class="modal-head">
-        <div class="head-wrap">标题XXX</div>
+        <div class="head-wrap">title</div>
       </div>
       <div class="modal-content clearfix">
         <div class="img-clip-wrap">
@@ -16,7 +16,7 @@
           </div>
           <div class="reset-img">
             <i class="icon-reset"></i>
-            <span>选择图片</span>
+            <span>select image</span>
             <input type="file" id="file_input" accept="image/*" @change="fileChange">
           </div>
         </div>
@@ -24,11 +24,11 @@
           <div class="pre-container">
             <img id="clip_res_img">
           </div>
-          <div class="pre-info">展示效果如上所示</div>
+          <div class="pre-info">preview</div>
         </div>
       </div>
       <div class="modal-footer">
-        <a class="modal-btn btn-confirm" :href="clipData" download="crop.jpg">确认</a>
+        <a class="modal-btn btn-confirm" :href="clipData" download="crop.jpg">clip</a>
       </div>
     </div>
   </div>
@@ -129,7 +129,7 @@
         }
         this.$imgContainer.setAttribute('style', `width:${w}px;height:${h}px;top:${mt}px;`);
         this.$refs.box.rec = { w: rw, h: rh, l: 0, t: 0 };
-        this.$broadcast('containerSizeChange', { w, h });
+        this.$broadcast('imgSizeChange', { w, h });
       },
       clearSelect() {
         const box = this.$refs.box;
@@ -171,7 +171,7 @@
         bufferCanvas.width = computedRec.w;
         bufferCanvas.height = computedRec.h;
         bfx.drawImage(this.$srcImg, -computedRec.l, -computedRec.t, this.nw, this.nh);
-        this.clipData = bufferCanvas.toDataURL('image/jpeg', 0.9);
+        this.clipData = bufferCanvas.toDataURL('image/jpeg', 1);
       }
     }
   }
@@ -195,15 +195,6 @@
     height: 50px;
     line-height: 50px;
     border-bottom: 1px solid #e5e9ef;
-  }
-  .icon-close {
-    position: absolute;
-    top: 16px;
-    right: 16px;
-    display: inline-block;
-    font-size: 20px;
-    color: #99a2aa;
-    transform: rotate(40deg);
   }
   .modal-content {
     padding: 30px 40px 40px;
