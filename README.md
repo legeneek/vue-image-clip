@@ -16,7 +16,7 @@ npm run build
 
 ```
 
-## Useage
+## Usage
 
 Just add CustomCropper.vue and SelectBox.vue to your project, then use it like this:
 
