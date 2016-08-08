@@ -1,6 +1,6 @@
 # vue-image-clip
 
-Image clip component based on vue
+Image clip component based on vue. Try the [demo](https://legeneek.github.io/vue-image-clip/index.html)
 
 ## Build Setup
 
