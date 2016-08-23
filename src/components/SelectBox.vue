@@ -347,4 +347,7 @@
     top: 0;
     left: 0;
   }
+  .shadow-box::selection, .shadow-img::selection {
+    background-color: transparent;
+  }
 </style>
