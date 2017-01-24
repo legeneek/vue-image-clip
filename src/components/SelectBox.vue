@@ -57,7 +57,7 @@
         this.$img.style.height = `${o.h}px`;
       })
     },
-    beforeDestory() {
+    beforeDestroy() {
       window.removeEventListener('mouseup', this.disableDrag);
       window.removeEventListener('mousemove', this.updateRec)
     },
