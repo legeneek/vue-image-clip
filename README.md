@@ -1,6 +1,8 @@
 # vue-image-clip
 
-> A Vue.js project
+Image clip component based on vue2. Try the [demo](https://legeneek.github.io/vue-image-clip/index.html)
+
+If you want to use vue1, check out tag v1.0
 
 ## Build Setup
 
@@ -14,8 +16,27 @@ npm run dev
 # build for production with minification
 npm run build
 
-# build for production and view the bundle analyzer report
-npm run build --report
 ```
 
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
+## Usage
+
+Just add CustomCropper.vue and SelectBox.vue to your project, then use it like this:
+
+```
+<template>
+  <div id="app">
+    <Custom-Cropper></Custom-Cropper>
+  </div>
+</template>
+
+<script>
+  import CustomCropper from './YourPath/CustomCropper';
+
+  export default {
+    components: {
+      CustomCropper
+    }
+  };
+</script>
+
+```
