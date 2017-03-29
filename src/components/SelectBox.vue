@@ -1,6 +1,6 @@
 <template>
   <div class="crop-wrap" @mousedown="wrapMouseDown">
-    <div class="shadow-box" :style="shadowStyle">
+    <div class="shadow-box" :style="recStyle">
       <img :src="img" class="shadow-img" :style="imgStyle">
     </div>
     <div class="crop-box" @mousedown="boxMouseDown" :class="showBox ? 'show': ''" :style="recStyle">
@@ -40,9 +40,6 @@
         return `width:${this.srcSize.w}px;height:${this.srcSize.h}px;top:${-this.rec.t}px;left:${-this.rec.l}px;`
       },
       recStyle () {
-        return `width:${this.rec.w}px;height:${this.rec.h}px;left:${this.rec.l}px;top:${this.rec.t}px;`
-      },
-      shadowStyle () {
         return `width:${this.rec.w}px;height:${this.rec.h}px;left:${this.rec.l}px;top:${this.rec.t}px;`
       }
     },
