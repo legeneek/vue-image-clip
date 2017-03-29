@@ -1,25 +1,17 @@
 <template>
-  <div id="app">
-    <Custom-Cropper></Custom-Cropper>
-  </div>
+    <custom-cropper></custom-cropper>
 </template>
 
 <script>
-  import CustomCropper from './components/CustomCropper';
+import CustomCropper from './components/CustomCropper.vue'
 
-  export default {
-    components: {
-      CustomCropper
-    }
-  };
+export default {
+  name: 'app',
+  components: {
+    CustomCropper
+  }
+}
 </script>
 
 <style>
-  html {
-    height: 100%;
-  }
-
-  * {
-    box-sizing: border-box;
-  }
 </style>

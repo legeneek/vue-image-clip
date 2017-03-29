@@ -1,8 +1,6 @@
 .DS_Store
-.idea
 node_modules/
 dist/
-npm-debug.log
-selenium-debug.log
-test/unit/coverage
-test/e2e/reports
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
