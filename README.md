@@ -20,7 +20,9 @@ npm run build
 
 ## Usage
 
-Just add CustomCropper.vue and SelectBox.vue to your project, then use it like this:
+Just add CustomCropper.vue and SelectBox.vue to your project.
+
+CustomCropper.vue require SelectBox.vue, you need to put them in the same directory
 
 ```
 <template>
@@ -40,3 +42,6 @@ Just add CustomCropper.vue and SelectBox.vue to your project, then use it like t
 </script>
 
 ```
+
+## License
+MIT

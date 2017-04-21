@@ -11,7 +11,7 @@
             <div class="img-container">
               <img id="clip_src_img" @load="srcImgLoaded" :src="img">
               <div class="shadow-box"></div>
-              <Select-Box ref="box" :srcSize="imgSize" :radio="radio" :img="img" @selectEnd="selectEnd"
+              <Select-Box ref="box" :srcSize="imgSize" :ratio="ratio" :img="img" @selectEnd="selectEnd"
                           @selectChange="selectChange"></Select-Box>
             </div>
           </div>
@@ -53,7 +53,7 @@
         nw: 0,
         nh: 0,
         clipData: null,
-        radio: 16 / 10, // equal to container's width / height
+        ratio: 16 / 10, // equal to container's width / height
         imgSize: {w: 0, h: 0},
         containerTop: 0
       }
@@ -103,23 +103,23 @@
         this.clipData = null
       },
       setImgSize () {
-        // image's naturalWidth naturalHeight radio
+        // image's naturalWidth naturalHeight ratio
         const nr = this.nw / this.nh
         const scw = this.$containerBox.offsetWidth
         const sch = this.$containerBox.offsetHeight
         let rw = 0  // select box width
         let rh = 0  // select box height
-        if (nr >= this.radio) {
+        if (nr >= this.ratio) {
           this.imgSize.w = scw
           this.imgSize.h = scw / nr
           this.containerTop = (sch - this.imgSize.h) / 2
           rh = this.imgSize.h
-          rw = rh * this.radio
+          rw = rh * this.ratio
         } else {
           this.imgSize.h = sch
           this.imgSize.w = sch * nr
           rw = this.imgSize.w
-          rh = rw / this.radio
+          rh = rw / this.ratio
         }
         this.$srcImg.setAttribute('style', `width:${this.imgSize.w}px;height:${this.imgSize.h}px;`)
         this.$imgContainer.setAttribute('style',

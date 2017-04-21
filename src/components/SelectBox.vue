@@ -15,7 +15,7 @@
 <script>
   export default {
     props: {
-      radio: {},
+      ratio: {},
       img: {},
       srcSize: {}
     },
@@ -161,21 +161,21 @@
         } else if (this.action === 'cross') {
           if (dx > 0 && dy > 0) {
             w = dx + this.rec.l >= elWidth ? elWidth - this.rec.l : dx
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h + this.rec.t > elHeight) {
               h = elHeight - this.rec.t
-              w = h * this.radio
+              w = h * this.ratio
             }
             this.rec.w = w
             this.rec.h = h
           } else if (dx > 0 && dy < 0) {
             w = dx + this.referPoint.x >= elWidth ? elWidth - this.referPoint.x : dx
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h >= this.referPoint.y) {
               h = this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
 
             this.rec.t = this.referPoint.y - h
@@ -183,11 +183,11 @@
             this.rec.h = h
           } else if (dx < 0 && dy < 0) {
             w = dx + this.referPoint.x <= 0 ? this.referPoint.x : -dx
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h >= this.referPoint.y) {
               h = this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
 
             this.rec.t = this.referPoint.y - h
@@ -196,11 +196,11 @@
             this.rec.h = h
           } else if (dx < 0 && dy > 0) {
             w = dx + this.referPoint.x <= 0 ? this.referPoint.x : -dx
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h + this.referPoint.y >= elHeight) {
               h = elHeight - this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
 
             this.rec.l = this.referPoint.x - w
@@ -213,41 +213,41 @@
           h = y - (this.referPoint.y + this.pt)
           if (w < 0 && h < 0) {
             w = w * -1 >= this.referPoint.x ? this.referPoint.x : w * -1
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h >= this.referPoint.y) {
               h = this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
             this.rec.l = this.referPoint.x - w
             this.rec.t = this.referPoint.y - h
           } else if (w < 0 && h > 0) {
             w = w * -1 >= this.referPoint.x ? this.referPoint.x : w * -1
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h >= elHeight - this.referPoint.y) {
               h = elHeight - this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
             this.rec.l = this.referPoint.x - w
             this.rec.t = this.referPoint.y
           } else if (w > 0 && h < 0) {
             w = w >= elWidth - this.referPoint.x ? elWidth - this.referPoint.x : w
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h >= this.referPoint.y) {
               h = this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
             this.rec.l = this.referPoint.x
             this.rec.t = this.referPoint.y - h
           } else if (w > 0 && h > 0) {
             w = w >= elWidth - this.referPoint.x ? elWidth - this.referPoint.x : w
-            h = w / this.radio
+            h = w / this.ratio
 
             if (h >= elHeight - this.referPoint.y) {
               h = elHeight - this.referPoint.y
-              w = h * this.radio
+              w = h * this.ratio
             }
             this.rec.l = this.referPoint.x
             this.rec.t = this.referPoint.y
