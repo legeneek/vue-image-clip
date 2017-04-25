@@ -118,6 +118,7 @@
         } else {
           this.imgSize.h = sch
           this.imgSize.w = sch * nr
+          this.containerTop = 0
           rw = this.imgSize.w
           rh = rw / this.ratio
         }
