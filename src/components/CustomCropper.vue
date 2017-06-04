@@ -53,7 +53,7 @@
         nw: 0,
         nh: 0,
         clipData: null,
-        ratio: 16 / 10, // equal to container's width / height
+        ratio: 16 / 10, // equal to SelectBox's width / height
         imgSize: {w: 0, h: 0},
         containerTop: 0
       }
