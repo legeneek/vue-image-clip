@@ -18,7 +18,7 @@
           <div class="reset-img">
             <i class="icon-reset"></i>
             <span>select image</span>
-            <input type="file" id="file_input" accept="image/*" @change="fileChange">
+            <input type="file" id="file_input" accept="image/png,image/jpg,image/gif" @change="fileChange">
           </div>
         </div>
         <div class="img-preview-wrap">
