@@ -2,8 +2,6 @@
 
 Image clip component based on vue2. Try the [demo](https://legeneek.github.io/vue-image-clip/index.html)
 
-If you want to use vue1, check out tag v1.0
-
 ## Build Setup
 
 ``` bash
