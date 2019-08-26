@@ -2,7 +2,7 @@
 
 Image clip component based on vue2. Try the [demo](https://legeneek.github.io/vue-image-clip/index.html)
 
-## Build Setup
+## Demo Setup
 
 ``` bash
 # install dependencies
@@ -11,14 +11,11 @@ npm install
 # serve with hot reload at localhost:8080
 npm run dev
 
-# build for production with minification
-npm run build
-
 ```
 
 ## Usage
 
-Just add CustomCropper.vue and SelectBox.vue to your project.
+Just add `CustomCropper.vue` and `SelectBox.vue` in `src/components` to your project.
 
 CustomCropper.vue require SelectBox.vue, you need to put them in the same directory
 
